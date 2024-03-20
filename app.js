@@ -1,3 +1,4 @@
+"use strict";
 /** Simple demo Express app. */
 
 const express = require("express");
@@ -10,23 +11,40 @@ const { convertStrNums } = require("./utils");
 
 const MISSING = "Expected key `nums` with comma-separated list of numbers.";
 
-
-/** Finds mean of nums in qs: returns {operation: "mean", result } */
-app.get("/mean", function (req, res){
-  const str = req.query.nums;
-  if (str === ""){
-    throw new BadRequestError("nums are required.")
+/** Accepts string with comma separated values and converts into array of
+ * numbers or throws an error if value is not a number. */
+function convertInput(str) {
+  if (str === "") {
+    throw new BadRequestError("nums are required.");
   }
   const strNums = str.split(",");
   const nums = convertStrNums(strNums);
+  return nums;
+};
+
+/** Finds mean of nums in qs: returns {operation: "mean", result } */
+app.get("/mean", function (req, res) {
+  const str = req.query.nums;
+  const nums = convertInput(str);
   const result = findMean(nums);
-  return res.json({response: {operation: "mean", value: result}})
-})
+  return res.json({ response: { operation: "mean", value: result } });
+});
 
 /** Finds median of nums in qs: returns {operation: "median", result } */
+app.get("/median", function (req, res) {
+  const str = req.query.nums;
+  const nums = convertInput(str);
+  const result = findMedian(nums);
+  return res.json({ response: { operation: "median", value: result } });
+});
 
-
-/** Finds mode of nums in qs: returns {operation: "mean", result } */
+/** Finds mode of nums in qs: returns {operation: "mode", result } */
+app.get("/mode", function (req, res) {
+  const str = req.query.nums;
+  const nums = convertInput(str);
+  const result = findMode(nums);
+  return res.json({ response: { operation: "mode", value: result } });
+});
 
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
